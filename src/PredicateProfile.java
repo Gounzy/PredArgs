@@ -8,8 +8,8 @@ public class PredicateProfile {
         int i = 0;
         for(String s : arguments) {
             ArgumentProfile ap = new ArgumentProfile(i, s);
-            i++;
             argumentProfiles.add(ap);
+            i++;
         }
     }
 

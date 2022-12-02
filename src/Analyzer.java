@@ -2,9 +2,15 @@ import java.util.*;
 
 public class Analyzer {
     private Map<Predicate,ArrayList<Interaction>> predicates = new HashMap<>();
+    private boolean verbose;
 
     public void addPredicate(Predicate p) {
         this.predicates.put(p, new ArrayList<>());
+    }
+
+
+    public Analyzer(boolean verbose) {
+        this.verbose = verbose;
     }
 
     public void analyze() {
@@ -60,7 +66,7 @@ public class Analyzer {
                                                 interaction = new Interaction(v, outVar);
                                             }
                                             interaction.addOperation(new Operation(op, programPoint));
-                                            System.out.println(interaction);
+                                            // System.out.println(interaction);
                                             interaction.mergeInto(currentProfile);
                                         }
                                     }
@@ -73,6 +79,32 @@ public class Analyzer {
                                             List<String> inputVariables = called.extractInputVariables(variables);
                                             List<String> outputVariables = called.extractOutputVariables(variables);
 
+                                            int i = 0;
+                                            PredicateProfile calledProfile = called.getProfile();
+
+                                            // Adding the profile of each argument
+                                            for(String arg : called.getArguments()) {
+                                                String var = variables.get(i);
+                                                ArgumentProfile ap = calledProfile.retrieveArgumentProfile(arg);
+                                                Map<ArgumentProfile, List<Operation>> osets = ap.getOsets();
+                                                if(!osets.isEmpty()) {
+                                                    for(Map.Entry<ArgumentProfile, List<Operation>> oset : osets.entrySet()) {
+                                                        int targetNum = oset.getKey().getNum();
+                                                        String targetVar = children.get(targetNum).getData();
+                                                        String inVar = children.get(ap.getNum()).getData();
+                                                        List<Operation> ops = oset.getValue();
+
+                                                        Interaction inter = new Interaction(inVar, targetVar);
+                                                        for(Operation op : ops) {
+                                                            inter.addOperation(op);
+                                                        }
+                                                        inter.mergeInto(currentProfile);
+                                                    }
+                                                }
+                                                i++;
+                                            }
+
+                                            // PSI operations
                                             for (String inVar : inputVariables) {
                                                 for (String outVar : outputVariables) {
                                                     Interaction interaction = new Interaction(inVar, outVar);
@@ -95,27 +127,35 @@ public class Analyzer {
                         }
                     }
 
-                    System.out.println("Local environment computed for " + p.getSignature() + ":");
-                    this.displayInteractions(currentProfile);
+                    if(this.verbose) {
+                        System.out.println("Local environment computed for " + p.getSignature() + ":");
+                        this.displayInteractions(currentProfile);
+                        System.out.println("Computing closure...");
+                    }
 
-                    System.out.println("Computing closure...");
                     this.transitiveClosure(currentProfile);
-
-                    System.out.println("Restricting to arguments...");
+                    if(this.verbose) {
+                        System.out.println("Restricting to arguments...");
+                    }
                     this.argumentsOnly(p, currentProfile);
 
-                    System.out.println("Merging...");
+                    if(this.verbose) {
+                        System.out.println("Merging...");
+                    }
+
                     for (Interaction i : currentProfile) {
                         changes = changes || i.mergeInto(predicateProfile);
                     }
-
-                    System.out.println("Computing argument profiles...");
+                    if(this.verbose) {
+                        System.out.println("Computing argument profiles...");
+                    }
                     this.computeArgumentProfiles(p);
+                    if(this.verbose) {
+                        this.displayArgumentProfiles();
 
-                    this.displayArgumentProfiles();
-
-                    System.out.println("New environment: ");
-                    this.displayEnvironment();
+                        System.out.println("New environment: ");
+                        this.displayEnvironment();
+                    }
             }
         }
     }

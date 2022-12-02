@@ -65,5 +65,7 @@ public class ArgumentProfile {
         this.name = name;
     }
 
-
+    public Map<ArgumentProfile, List<Operation>> getOsets() {
+        return osets;
+    }
 }

@@ -29,7 +29,7 @@ public class Predicate {
     public String toString() {
         String str = "";
         for (Tree<String> body : this.bodies) {
-            str += this.name + "(" + this.displayArguments() + ")" + " <- " + this.displayBody(body) + "\n";
+            str += this.name + "(" + this.displayArguments() + ")" + " <- " + this.displayBody(body) + ".\n";
         }
         return str;
     }
@@ -223,5 +223,59 @@ public class Predicate {
 
         trees.addAll(Arrays.asList(tree1,tree2,tree3));
         return new Predicate("tapp2", inputArguments, outputArguments, trees);
+    }
+
+    public static Predicate qapp() {
+        List<String> inputArguments = new ArrayList<>(Arrays.asList("F", "G", "H", "I")),
+                outputArguments = new ArrayList<>(Arrays.asList("J"));
+
+        List<Tree<String>> trees = new ArrayList<>();
+
+        Tree<String> tree1 = new Tree<>("");
+        Node<String> node1 = tree1.getRoot();
+
+        node1.addChild("app", Arrays.asList("F", "G", "FG"))
+                .addChild("app", Arrays.asList("FG", "H", "FGH"))
+                .addChild("app", Arrays.asList("FGH", "I", "J"));
+
+        trees.addAll(Arrays.asList(tree1));
+        return new Predicate("qapp", inputArguments, outputArguments, trees);
+    }
+
+    public static Predicate qapp2() {
+        List<String> inputArguments = new ArrayList<>(Arrays.asList("F1", "G1", "H1", "I1")),
+                outputArguments = new ArrayList<>(Arrays.asList("J1"));
+
+        List<Tree<String>> trees = new ArrayList<>();
+
+        Tree<String> tree1 = new Tree<>("");
+        Node<String> node1 = tree1.getRoot();
+
+        node1.addChild("concat", Arrays.asList("G1", "F1","FG1"))
+                .addChild("concat", Arrays.asList("FG1","H1", "FGH1"))
+                .addChild("concat", Arrays.asList("I1", "FGH1", "J1"));
+
+        trees.addAll(Arrays.asList(tree1));
+        return new Predicate("qapp2", inputArguments, outputArguments, trees);
+    }
+
+    public static Predicate concat() {
+        List<String> inputArguments = new ArrayList<>(Arrays.asList("V1", "V2")),
+                outputArguments = new ArrayList<>(Arrays.asList("V3"));
+
+        List<Tree<String>> trees = new ArrayList<>();
+        Tree<String> tree1 = new Tree<>("");
+        Node<String> node1 = tree1.getRoot();
+
+        node1.addChild(Predicate.DEC, Arrays.asList("V2", "nil")).addChild(Predicate.ASSIGN, Arrays.asList("V3", "V1"));
+
+        Tree<String> tree2 = new Tree<>("");
+        Node<String> node2 = tree2.getRoot();
+        node2.add(Predicate.DEC, Arrays.asList(new Node<>("V2"), new Node<>("cons", Arrays.asList(new Node<>("V21"), new Node<>("V2s")))))
+                .addChild("concat", Arrays.asList("V1", "V2s", "V3s"))
+                .add(Predicate.GETS, Arrays.asList(new Node<>("V3"), new Node<>("cons", Arrays.asList(new Node<>("V21"), new Node<>("V3s")))));
+
+        trees.addAll(Arrays.asList(tree2, tree1));
+        return new Predicate("concat", inputArguments, outputArguments, trees);
     }
 }

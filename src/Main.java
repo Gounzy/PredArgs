@@ -27,6 +27,8 @@ public class Main {
         ana.addPredicate(concat);
 
         ana.analyze();
+
+        ana.reorderPredicates();
         ana.displayEnvironment();
     }
 }

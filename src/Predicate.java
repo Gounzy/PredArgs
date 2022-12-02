@@ -99,6 +99,42 @@ public class Predicate {
         return this.displayBody(root);
     }
 
+    public int getNbOutsideCalls(List<Predicate> allowedPredicates) {
+        List<String> allowedNames = new ArrayList<>();
+        for(Predicate p : allowedPredicates) {
+            allowedNames.add(p.name);
+        }
+
+        ArrayList<String> called = new ArrayList<>();
+        for (Tree<String> body : this.bodies) {
+            Node<String> root = body.getRoot();
+            for(Node<String> child : root.getChildren()) {
+                List<Node<String>> children = child.getChildren();
+                switch (child.getData()) {
+                    case ASSIGN:
+                    case TEST:
+                    case DEC:
+                    case GETS:
+                        break;
+                    default:
+                        if (!child.getData().equals(this.name)) {
+                            if (!called.contains(child.getData())) {
+                                if(allowedNames.contains(child.getData()))
+                                    called.add(child.getData());
+                            }
+                            break;
+                        }
+                }
+            }
+        }
+        return called.size();
+    }
+
+    public void reorderArguments() {
+        PredicateProfile profile = this.profile;
+        // TODO
+    }
+
     private String displayBody(Node<String> root) {
         if(root.getChildren().size() == 0) {
             return root.getData();
@@ -112,7 +148,7 @@ public class Predicate {
             switch (child.getData()) {
                 case ASSIGN :
                 case TEST :
-                    if(child.getChildren().size() > 1) {
+                    if(children.size() > 1) {
                         Node<String> first = children.get(0);
                         Node<String> second = children.get(1);
                         str += first.getData() + " " + child.getData() +  " " + second.getData();
@@ -120,7 +156,7 @@ public class Predicate {
                     break;
                 case DEC:
                 case GETS:
-                    if(child.getChildren().size() > 1) {
+                    if(children.size() > 1) {
                         Node<String> first = children.get(0);
                         Node<String> second = children.get(1);
                         str += first.getData() + " " + child.getData() +  " ";
@@ -132,7 +168,7 @@ public class Predicate {
                     }
                     break;
                 default:
-                    if(child.getChildren().size() > 0) {
+                    if(children.size() > 0) {
                         str += child.getData() + "(";
                         for (int j = 0; j < child.getChildren().size(); j++) {
                             str += this.displayBody(child.getChildren().get(j));

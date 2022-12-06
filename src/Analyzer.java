@@ -27,8 +27,13 @@ public class Analyzer {
         Iterator<Predicate> predicateIterator = new ProgramPredicateIterator(this.predicates);
         while(predicateIterator.hasNext()) {
             Predicate p = predicateIterator.next();
-            ArrayList<Interaction> predicateProfile = this.profiles.get(p);
 
+            if(this.verbose) {
+                System.out.println("Analyzing predicate: " + p.getSignature());
+                System.out.println("-------------------------");
+            }
+
+            ArrayList<Interaction> predicateProfile = this.profiles.get(p);
             ArrayList<Interaction> currentProfile = new ArrayList<>();
 
             boolean changes = true;
@@ -162,11 +167,7 @@ public class Analyzer {
 
                 this.computeArgumentProfiles(p);
 
-                if (this.verbose) {
-                    System.out.println("Reordering arguments...");
-                }
-
-                p.reorderArguments();
+                //p.reorderArguments();
 
                 if (this.verbose) {
                     this.displayArgumentProfiles();
@@ -175,6 +176,10 @@ public class Analyzer {
                     this.displayEnvironment();
                 }
             }
+            if (this.verbose) {
+                System.out.println("Reordering arguments of " + p.getSignature() + "...");
+            }
+            p.reorderArguments();
         }
     }
 

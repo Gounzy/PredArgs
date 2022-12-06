@@ -4,10 +4,15 @@ import java.util.List;
 public class PredicateProfile {
     private List<ArgumentProfile> argumentProfiles = new ArrayList<>();;
 
-    public PredicateProfile(List<String> arguments) {
+    public PredicateProfile(List<String> inputArguments, List<String> outputArguments) {
         int i = 0;
-        for(String s : arguments) {
-            ArgumentProfile ap = new ArgumentProfile(i, s);
+        for(String s : inputArguments) {
+            ArgumentProfile ap = new ArgumentProfile(i, s, false);
+            argumentProfiles.add(ap);
+            i++;
+        }
+        for(String s : outputArguments) {
+            ArgumentProfile ap = new ArgumentProfile(i, s, true);
             argumentProfiles.add(ap);
             i++;
         }

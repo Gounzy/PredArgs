@@ -1,8 +1,5 @@
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Predicate {
 
@@ -11,19 +8,17 @@ public class Predicate {
                          ASSIGN = ":=",
                          TEST = "<->";
     private String name;
-    private List<String> arguments;
+    private List<String> arguments = new ArrayList<>();
     private List<Tree<String>> bodies;
-    private int nbInputArguments = 0;
 
     private PredicateProfile profile;
 
     public Predicate(String name, List<String> inputArguments, List<String> outputArguments, List<Tree<String>> bodies) {
-        this.arguments = inputArguments;
-        this.nbInputArguments = inputArguments.size();
+        this.arguments.addAll(inputArguments);
         this.arguments.addAll(outputArguments);
         this.name = name;
         this.bodies = bodies;
-        this.profile = new PredicateProfile(this.arguments);
+        this.profile = new PredicateProfile(inputArguments, outputArguments);
     }
 
     public String toString() {
@@ -42,22 +37,24 @@ public class Predicate {
         return this.arguments.size();
     }
 
-    public int getNbInputArguments() {
-        return this.nbInputArguments;
-    }
 
     public List<String> extractInputVariables(List<String> variables) {
-        List<String> list = new ArrayList<>();
-        for(int i = 0; i < this.nbInputArguments; i++) {
-            list.add(variables.get(i));
-        }
-        return list;
+        return this.extractVariables(variables, true);
     }
 
     public List<String> extractOutputVariables(List<String> variables) {
+        return this.extractVariables(variables, false);
+    }
+
+    private List<String> extractVariables(List<String> variables, boolean input) {
         List<String> list = new ArrayList<>();
-        for(int i = this.nbInputArguments; i < this.getArity(); i++) {
-            list.add(variables.get(i));
+        List<ArgumentProfile> aps = this.profile.getArgumentProfiles();
+        aps.sort(new SortArgumentProfiles());
+
+        for(int i = 0; i < aps.size(); i++) {
+            if(aps.get(i).isInput() == input) {
+                list.add(variables.get(i));
+            }
         }
         return list;
     }
@@ -132,7 +129,62 @@ public class Predicate {
 
     public void reorderArguments() {
         PredicateProfile profile = this.profile;
-        // TODO
+        List<ArgumentDescription> values = new ArrayList<>();
+        profile.getArgumentProfiles().sort(new SortArgumentProfiles());
+
+        ArgumentDescription argumentDescription;
+        for(ArgumentProfile ap : profile.getArgumentProfiles()) {
+            argumentDescription = new ArgumentDescription(ap);
+            values.add(argumentDescription);
+
+            for(ArgumentProfile ap2 : profile.getArgumentProfiles()) {
+                // todo créer description
+            }
+        }
+
+        values.sort(new SortArguments());
+
+        int i = 0;
+        for(ArgumentDescription ad : values) {
+            ad.setNewOrder(i);
+            i++;
+        }
+        this.reorderArgumentList(values);
+
+        this.updateProfileNums(values, this.getNewPositionsMap(values));
+        profile.getArgumentProfiles().sort(new SortArgumentProfiles());
+
+    }
+
+    private void reorderArgumentList(List<ArgumentDescription> values) {
+        ArrayList<String> newArguments = new ArrayList<>();
+        for(int i = 0; i < this.arguments.size(); i++) {
+            newArguments.add(this.retrieveCurrentArgumentDescriptionValue(values, i));
+        }
+        this.arguments = newArguments;
+    }
+
+    private String retrieveCurrentArgumentDescriptionValue(List<ArgumentDescription> ads, int newPosition) {
+        for(ArgumentDescription ad : ads) {
+            if(ad.getNewOrder() == newPosition) {
+                return ad.getProfile().getName();
+            }
+        }
+        return null;
+    }
+
+    private void updateProfileNums(List<ArgumentDescription> ads, Map<Integer,Integer> amap) {
+        for(ArgumentDescription ad : ads) {
+            ad.updateProfileNums();
+        }
+    }
+
+    private Map<Integer,Integer> getNewPositionsMap(List<ArgumentDescription> ads) {
+        Map<Integer,Integer> map = new HashMap<>();
+        for(ArgumentDescription ad : ads) {
+            map.put(ad.getOldOrder(), ad.getNewOrder());
+        }
+        return map;
     }
 
     private String displayBody(Node<String> root) {

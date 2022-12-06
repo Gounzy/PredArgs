@@ -4,12 +4,15 @@ public class ArgumentProfile {
     private int num;
     private String name;
 
+    private boolean isOutput;
+
     private Map<ArgumentProfile, List<Operation>> osets;
 
-    public ArgumentProfile(int num, String name) {
+    public ArgumentProfile(int num, String name, boolean isOutput) {
         this.num = num;
         this.name = name;
         this.osets = new HashMap<>();
+        this.isOutput = isOutput;
     }
 
     public ArgumentProfile addOperation(Operation o, ArgumentProfile ap) {
@@ -67,5 +70,12 @@ public class ArgumentProfile {
 
     public Map<ArgumentProfile, List<Operation>> getOsets() {
         return osets;
+    }
+
+    public boolean isOutput() {
+        return isOutput;
+    }
+    public boolean isInput() {
+        return !isOutput;
     }
 }

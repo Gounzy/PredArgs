@@ -9,6 +9,8 @@ public class ArgumentDescription {
     private int nbInteractions, nbOperations, nbIndirectOperations, nbPositions;
     private int nbDec, nbAssign, nbGets, nbPsiBots, nbPsis;
 
+    private float meanPosition;
+
 
     public ArgumentDescription(ArgumentProfile ap, List<Predicate> predicates) {
         profile = ap;
@@ -38,6 +40,8 @@ public class ArgumentDescription {
                     nbPsis++;
                     Predicate called = op.getCalledPredicate();
                     int position = op.getPosition();
+                    int calledArity = called.getArity();
+                    meanPosition += (float) position / calledArity;
                     ArgumentDescription ad = called.getDescriptions().get(position);
                     nbIndirectOperations += ad.nbOperations;
                     break;
@@ -50,6 +54,12 @@ public class ArgumentDescription {
             }
         }
 
+        if(nbPsis > 0) {
+            meanPosition /= nbPsis;
+        }
+        else {
+            meanPosition = 2;
+        }
         nbOperations = nbPsiBots+nbPsis+nbAssign+nbDec+nbGets;
         nbPositions = positions.size();
     }
@@ -159,5 +169,13 @@ public class ArgumentDescription {
 
     public void setNbPsis(int nbPsis) {
         this.nbPsis = nbPsis;
+    }
+
+    public float getMeanPosition() {
+        return meanPosition;
+    }
+
+    public void setMeanPosition(float meanPosition) {
+        this.meanPosition = meanPosition;
     }
 }

@@ -6,7 +6,11 @@ public class ArgumentProfile {
 
     private boolean isOutput;
 
+    private ArgumentDescription description = null;
+
     private Map<ArgumentProfile, List<Operation>> osets;
+
+    private Predicate predicate;
 
     public ArgumentProfile(int num, String name, boolean isOutput) {
         this.num = num;
@@ -72,10 +76,38 @@ public class ArgumentProfile {
         return osets;
     }
 
+    public void setDescription(ArgumentDescription description) {
+        this.description = description;
+    }
+
     public boolean isOutput() {
         return isOutput;
     }
     public boolean isInput() {
         return !isOutput;
+    }
+
+    public ArgumentDescription getDescription() {
+        return this.description;
+    }
+
+    public int getNbInteractions() {
+        return this.osets.size();
+    }
+
+    public List<Operation> allOps() {
+        List<Operation> allOps = new ArrayList<>();
+        for(List<Operation> operationList : osets.values()) {
+            allOps.addAll(operationList);
+        }
+        return allOps;
+    }
+
+    public Predicate getPredicate() {
+        return predicate;
+    }
+
+    public void setPredicate(Predicate predicate) {
+        this.predicate = predicate;
     }
 }

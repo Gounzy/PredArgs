@@ -30,6 +30,13 @@ public class Main {
 
         ana.reorderPredicates();
         ana.displayEnvironment();
+
+        System.out.println(app);
+        System.out.println(tapp);
+        System.out.println(tapp2);
+        System.out.println(qapp);
+        System.out.println(qapp2);
+        System.out.println(concat);
     }
 }
 /*

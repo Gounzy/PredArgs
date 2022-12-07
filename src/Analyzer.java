@@ -33,12 +33,15 @@ public class Analyzer {
                 System.out.println("-------------------------");
             }
 
+            p.reorderCalls(this.predicates);
+
             ArrayList<Interaction> predicateProfile = this.profiles.get(p);
-            ArrayList<Interaction> currentProfile = new ArrayList<>();
 
             boolean changes = true;
 
             while (changes) {
+                ArrayList<Interaction> currentProfile = new ArrayList<>();
+
                 changes = false;
                 int programPoint = 0;
                 // Iterating every set of entry in the HashMap
@@ -118,12 +121,18 @@ public class Analyzer {
                                             }
                                         }
 
+                                        String op = atom.getData().equals(p.getName()) ? Operation.PSI_BOT : Operation.PSI;
+
+                                        int i = 0;
+
                                         // PSI operations
                                         for (String inVar : inputVariables) {
                                             for (String outVar : outputVariables) {
                                                 Interaction interaction = new Interaction(inVar, outVar);
-                                                String op = atom.getData().equals(p.getName()) ? Operation.PSI_BOT : Operation.PSI;
-                                                Operation operation = new Operation(op, programPoint);
+                                                List<ArgumentProfile> aps = called.getProfile().getArgumentProfiles();
+
+
+                                                Operation operation = new Operation(op, programPoint, called, i);
                                                 if (!atom.getData().equals(p.getName())) {
                                                     operation.setPredicateProfile(called.getProfile());
                                                 }
@@ -132,6 +141,7 @@ public class Analyzer {
                                                 // System.out.println(interaction);
                                                 interaction.mergeInto(currentProfile);
                                             }
+                                            i++;
                                         }
                                     }
                                 }
@@ -179,7 +189,8 @@ public class Analyzer {
             if (this.verbose) {
                 System.out.println("Reordering arguments of " + p.getSignature() + "...");
             }
-            p.reorderArguments();
+            p.reorderArguments(this.predicates);
+            p.reorderCalls(Arrays.asList(p));
         }
     }
 

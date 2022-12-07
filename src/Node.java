@@ -30,6 +30,11 @@ public class Node<T> {
     public List<Node<T>> getChildren() {
         return this.children;
     }
+
+    public void setChildren(List<Node<T>> children) {
+        this.children = children;
+    }
+
     public boolean hasChildren() { return !this.children.isEmpty(); }
 
     public Node<T> addChild(T data, List<T> children) {

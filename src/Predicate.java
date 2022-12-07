@@ -19,6 +19,7 @@ public class Predicate {
         this.name = name;
         this.bodies = bodies;
         this.profile = new PredicateProfile(inputArguments, outputArguments);
+        this.profile.setPredicate(this);
     }
 
     public String toString() {
@@ -127,18 +128,18 @@ public class Predicate {
         return called.size();
     }
 
-    public void reorderArguments() {
+    public void reorderArguments(List<Predicate> predicates) {
         PredicateProfile profile = this.profile;
         List<ArgumentDescription> values = new ArrayList<>();
         profile.getArgumentProfiles().sort(new SortArgumentProfiles());
 
         ArgumentDescription argumentDescription;
         for(ArgumentProfile ap : profile.getArgumentProfiles()) {
-            argumentDescription = new ArgumentDescription(ap);
+            argumentDescription = new ArgumentDescription(ap, predicates);
             values.add(argumentDescription);
 
             for(ArgumentProfile ap2 : profile.getArgumentProfiles()) {
-                // todo créer description
+
             }
         }
 
@@ -151,9 +152,17 @@ public class Predicate {
         }
         this.reorderArgumentList(values);
 
-        this.updateProfileNums(values, this.getNewPositionsMap(values));
+        this.updateProfileNums(values, this.getNewPositionsMap());
         profile.getArgumentProfiles().sort(new SortArgumentProfiles());
 
+    }
+
+    public int nbOperations() {
+        int nb = 0;
+        for (Tree<String> body : this.bodies) {
+            nb += body.getRoot().getChildren().size();
+        }
+        return nb;
     }
 
     private void reorderArgumentList(List<ArgumentDescription> values) {
@@ -179,12 +188,66 @@ public class Predicate {
         }
     }
 
-    private Map<Integer,Integer> getNewPositionsMap(List<ArgumentDescription> ads) {
+    public List<ArgumentDescription> getDescriptions() {
+        List<ArgumentDescription> ads = new ArrayList<>();
+        for(ArgumentProfile ap : this.profile.getArgumentProfiles()) {
+            if(ap.getDescription() != null) {
+                ads.add(ap.getDescription());
+            }
+        }
+        return ads;
+    }
+
+    public Map<Integer,Integer> getNewPositionsMap() {
+        List<ArgumentDescription> ads = this.getDescriptions();
         Map<Integer,Integer> map = new HashMap<>();
         for(ArgumentDescription ad : ads) {
             map.put(ad.getOldOrder(), ad.getNewOrder());
         }
         return map;
+    }
+
+    public void reorderCalls(List<Predicate> predicates) {
+        for(Tree<String> tree : this.getBodies()) {
+            Node<String> root = tree.getRoot();
+            for(Node<String> child : root.getChildren()) {
+                List<Node<String>> children = child.getChildren();
+                switch(child.getData()) {
+                    case ASSIGN:
+                    case TEST:
+                    case DEC:
+                    case GETS:
+                        break;
+                    default:
+                        Predicate called = null;
+                        for(Predicate p : predicates) {
+                            if(p.getName().equals(child.getData())) {
+                                // p is called
+                                called = p;
+                            }
+                        }
+
+                        if(called == null) {
+                            break;
+                        }
+
+                        List<ArgumentDescription> ads = called.getDescriptions();
+                        if(ads.isEmpty()) {
+                            break;
+                        }
+
+                        List<Node<String>> newChildren = new ArrayList<>();
+                        int i = 0;
+                        for(ArgumentDescription ad : ads) {
+                            if(ad.getNewOrder() == i) {
+                                newChildren.add(children.get(ad.getOldOrder()));
+                                i++;
+                            }
+                        }
+                        child.setChildren(newChildren);
+                }
+            }
+        }
     }
 
     private String displayBody(Node<String> root) {

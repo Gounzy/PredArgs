@@ -5,8 +5,11 @@ public class Operation {
     public static final String PSI_BOT = "psi_bottom";
     public static final String PSI = "psi";
 
-    private String op = null;
+    private String op;
     private int programPoint = -1;
+
+    private Predicate calledPredicate = null;
+    private int position = -1;
 
     private PredicateProfile predicateProfile = null;
 
@@ -41,6 +44,13 @@ public class Operation {
         this.op = op;
     }
 
+    public Operation(String op, int programPoint, Predicate predicate, int position) {
+        this.programPoint = programPoint;
+        this.op = op;
+        this.calledPredicate = predicate;
+        this.position = position;
+    }
+
 
     public int getProgramPoint() {
         return programPoint;
@@ -70,5 +80,29 @@ public class Operation {
 
     public void setPredicateProfile(PredicateProfile predicateProfile) {
         this.predicateProfile = predicateProfile;
+    }
+
+    public String getOp() {
+        return op;
+    }
+
+    public void setOp(String op) {
+        this.op = op;
+    }
+
+    public Predicate getCalledPredicate() {
+        return calledPredicate;
+    }
+
+    public void setCalledPredicate(Predicate calledPredicate) {
+        this.calledPredicate = calledPredicate;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

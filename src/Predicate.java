@@ -403,7 +403,7 @@ public class Predicate {
         Node<String> node1 = tree1.getRoot();
 
         node1.addChild("concat", Arrays.asList("G1", "F1","FG1"))
-                .addChild("concat", Arrays.asList("FG1","H1", "FGH1"))
+                .addChild("concat", Arrays.asList("H1", "FG1", "FGH1"))
                 .addChild("concat", Arrays.asList("I1", "FGH1", "J1"));
 
         trees.addAll(Arrays.asList(tree1));

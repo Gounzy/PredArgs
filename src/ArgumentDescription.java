@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ArgumentDescription {
 
@@ -177,5 +179,21 @@ public class ArgumentDescription {
 
     public void setMeanPosition(float meanPosition) {
         this.meanPosition = meanPosition;
+    }
+
+    public Map<String, Number> getTuple() {
+        Map<String, Number> tuple = new HashMap<>();
+        tuple.put("nbInteractions", nbInteractions);
+        tuple.put("nbOperations", nbOperations);
+        tuple.put("nbIndirectOperations", nbIndirectOperations);
+        tuple.put("nbPositions", nbPositions);
+        tuple.put("nbPsis", nbPsis);
+        tuple.put("nbPsiBots", nbPsiBots);
+        tuple.put("meanPosition", meanPosition);
+        tuple.put("nbGets", nbGets);
+        tuple.put("nbDec", nbDec);
+        tuple.put("nbAssign", nbAssign);
+
+        return tuple;
     }
 }

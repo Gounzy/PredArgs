@@ -10,6 +10,8 @@ public class ArgumentProfile {
 
     private Map<ArgumentProfile, List<Operation>> osets;
 
+    private List<ArgumentProfile> inputProfiles = new ArrayList<>();
+
     private Predicate predicate;
 
     public ArgumentProfile(int num, String name, boolean isOutput) {
@@ -31,6 +33,7 @@ public class ArgumentProfile {
         if(!oplist.contains(o)) {
             oplist.add(o);
         }
+        ap.addInputProfile(this);
         return this;
     }
 
@@ -54,6 +57,11 @@ public class ArgumentProfile {
         }
 
         return str;
+    }
+
+    public void addInputProfile(ArgumentProfile ap) {
+        if(!this.inputProfiles.contains(ap))
+            this.inputProfiles.add(ap);
     }
 
     public int getNum() {
@@ -109,5 +117,13 @@ public class ArgumentProfile {
 
     public void setPredicate(Predicate predicate) {
         this.predicate = predicate;
+    }
+
+    public List<ArgumentProfile> getInputProfiles() {
+        return inputProfiles;
+    }
+
+    public void setInputProfiles(List<ArgumentProfile> inputProfiles) {
+        this.inputProfiles = inputProfiles;
     }
 }
